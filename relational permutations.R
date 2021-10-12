@@ -1,16 +1,16 @@
 library(tidyr)
 library(combinat)
 library(dplyr)
-directTrain<- function(x){
-  as.vector(unique(x))
-}
-
-d<- c("1","2","3","4","2","3")
-
-length(directTrain(d))
+# directTrain<- function(x){
+#   as.vector(unique(x))
+# }
+# 
+# d<- c("1","2","3","4","2","3")
+# 
+# length(directTrain(d))
 
 mutualEntail <- function(a){
-  if(substr(a,2,2)=="k"){return(paste(substr(a,4,4),"ku",substr(a,1,1), sep = ""))}
+  if("k" %in% substr(a,2,2)){return(paste(substr(a,4,4),"ku",substr(a,1,1), sep = ""))}
   x<- substr(a,1,1)
   y<- substr(a,3,3)
   z<- substr(a,2,2)
@@ -47,13 +47,17 @@ combEntail <- function(a){
 relationTrain <- function(a){
   
   b<- as.character(lapply(a,mutualEntail))
-  c<- as.character(apply(combn(a, m=2),2,combEntail)[!sapply(apply(combn(a, m=2),2,combEntail),is.null)])
-  q<- unique(apply(combn(c(c,a),m=2),2,combEntail))
-  q<- as.character(q[2:length(q)])
-  d<- as.character(lapply(c(c,q),mutualEntail))
   trainedRelations <- mutate(data.frame(a), Derivation_Level="Directly Trained",.before = a)
   names(trainedRelations)[names(trainedRelations)=="a"]<-"Relation" 
   mutuallyDerivedRelations <- mutate(pivot_longer(data.frame(lapply(a,mutualEntail)), cols = starts_with("X"), names_to = "Derivation_Level", values_to = "Relation"), Derivation_Level="Mutually Entailed")
+  if(length(b)==1){return(rbind(trainedRelations, mutuallyDerivedRelations))}
+  c<- as.character(if(length(a)<=2){combEntail((combn(a,m=2)))} else(apply(combn(a, m=2),2,combEntail)[!sapply(apply(combn(a, m=2),2,combEntail),is.null)]))
+  c<- c[!is.na(c)]
+  q<- unique(apply(combn(c(c,a),m=2),2,combEntail))
+  q<- as.character(q[2:length(q)])
+  q<- q[!is.na(q)]
+  d<- as.character(if(length(unique(c(c,q)))<=1){mutualEntail(c)} else(lapply(c(c,q),mutualEntail)))
+  
   combinatorialDerivedRelations <- data.frame(unique(c(c,q,d)))
   names(combinatorialDerivedRelations)[names(combinatorialDerivedRelations)=="unique.c.c..q..d.."]<-"Relation"
   combinatorialDerivedRelations<- mutate(combinatorialDerivedRelations,Derivation_Level="Combinatorially Entailed", .before="Relation")
@@ -65,19 +69,45 @@ relationTrain <- function(a){
 
 
 
-a <- c("A<B", "B>C", "C<D", "E>D", "F>E", "F<G")
+a <- c("A<B",
+       "B>C"#,
+       # "C<D",
+       # "E>D",
+       # "F>E",
+       # "F<G"
+       )
 
 rel<-relationTrain(a)
 
 
-a[2]
-as.list(a[2])
+b <- c("A<B",
+       "B>C",
+       "C<D",
+       "E>D",
+       "F>E",
+       "F<G"
+)
 
-combinatorialDerivedRelations <- data.frame(unique(c(c,q,d)))
-names(combinatorialDerivedRelations)[names(combinatorialDerivedRelations)=="unique.c.c..q..d.."]<-"Relation"
-combinatorialDerivedRelations<- mutate(combinatorialDerivedRelations,Derivation_Level="Combinatorially Entailed", .before="Relation")
+relb<-relationTrain(b)
 
+c <- c("A<B"#,
+       #"B>C",
+       # "C<D",
+       # "E>D",
+       # "F>E",
+       # "F<G"
+)
 
-q<- unique(apply(combn(c(c,a),m=2),2,combEntail))
-as.character(q[2:length(q)])
+relc<-relationTrain(c)
 
+# a[2]
+# as.list(a[2])
+# 
+# combinatorialDerivedRelations <- data.frame(unique(c(c,q,d)))
+# names(combinatorialDerivedRelations)[names(combinatorialDerivedRelations)=="unique.c.c..q..d.."]<-"Relation"
+# combinatorialDerivedRelations<- mutate(combinatorialDerivedRelations,Derivation_Level="Combinatorially Entailed", .before="Relation")
+# 
+# 
+# q<- unique(apply(combn(c(c,a),m=2),2,combEntail))
+# as.character(q[2:length(q)])
+# 
