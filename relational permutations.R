@@ -1,13 +1,7 @@
 library(tidyr)
 library(combinat)
 library(dplyr)
-# directTrain<- function(x){
-#   as.vector(unique(x))
-# }
-# 
-# d<- c("1","2","3","4","2","3")
-# 
-# length(directTrain(d))
+
 
 mutualEntail <- function(a){
   if("k" %in% substr(a,2,2)){return(paste(substr(a,4,4),"ku",substr(a,1,1), sep = ""))}
@@ -67,7 +61,18 @@ relationTrain <- function(a){
 
 
 
+#The a,b, and c variables below are examples of lists of relational statements.
+  #You can provide as many statements as you like in the form of Single_letter_Relation(=,<,>, or ku)_Single_letter
+  #Once your list is saved to a variable name, running relationTrain(variablename) will output a table of relations
+  # and their general derivation group.
+  #Currently,longer lists(>3 elements) do not iterate through all possible combinatorially derived relations yet.
+    #need to write some sort of recursion that adds new relations to q(or c), reruns combEntail,
+    #and tests the output against the prior state of the list until there are no new statements being generated.
 
+#Long term, it would be nice if this would take statements as an array i.e. [stimuli_name, relation, stimuli_name]
+  #and thus could handle longer names.
+  #additionally, adding ability to handle more relational types (i.e. difference, opposition, heirarchy, etc) will add
+    #functionality to this script.
 
 a <- c("A<B",
        "B>C"#,
@@ -100,14 +105,13 @@ c <- c("A<B"#,
 
 relc<-relationTrain(c)
 
-# a[2]
-# as.list(a[2])
+#Please leave the below comments.
+  #this is remnant from testing out the ability to produce a report about the characteristics of the output table
+
+# directTrain<- function(x){
+#   as.vector(unique(x))
+# }
 # 
-# combinatorialDerivedRelations <- data.frame(unique(c(c,q,d)))
-# names(combinatorialDerivedRelations)[names(combinatorialDerivedRelations)=="unique.c.c..q..d.."]<-"Relation"
-# combinatorialDerivedRelations<- mutate(combinatorialDerivedRelations,Derivation_Level="Combinatorially Entailed", .before="Relation")
+# d<- c("1","2","3","4","2","3")
 # 
-# 
-# q<- unique(apply(combn(c(c,a),m=2),2,combEntail))
-# as.character(q[2:length(q)])
-# 
+# length(directTrain(d))
