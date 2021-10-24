@@ -6,6 +6,7 @@ library(dplyr)
 a <- c("A<B", "B>C")
 b <- c("A<B", "B>C", "C<D", "E>D", "F>E", "F<G")
 c <- c("A<B")
+d <- c("A<B", "B<C", "C<D", "D<E", "E<F", "F<G")
 t<- c("gkuj", "h<i", "i<k", "k<j", "l<o", "mkuk", "n=o", "p>o")
 #The a,b,c, and t variables above are examples of lists of relational statements.
 #You can provide as many statements as you like in the form of Single_letter_Relation(=,<,>, or ku)_Single_letter (e.g. A>B)
@@ -65,6 +66,8 @@ combEnt<- function (a){
     nchar(d)==3 ~ substr(d,3,3),
     nchar(d)==4 ~ substr(d,4,4)
   )
+  if(r1=="ku"){return()}
+  if(r2=="ku"){return()}
   if(h==j){return()} #Testing second relational statement for identity
   if(h%in%c(e,g) & j%in%c(e,g)){return()} #Testing between relational statements for two of the same
   if(!(h%in%c(e,g)) & !(j%in%c(e,g))){return()} #Testing between relational statements for no shared stimuli (This may be a source for writing to a separate list that is recombined later)
@@ -95,10 +98,11 @@ combEnt<- function (a){
              Relation_Type=c(r3,r4),
              Derivation_Level=c("Combinatorially Entailed", "Combinatorially Mutually Entailed"),
              Relation=c(paste(l,r3,m, sep = ""), paste(m,r4,l, sep = "")),
-             edge_color=c("Dark Green", "Dark Green")
+             edge_color=c("Dark Green", "Dark Green"),
+             Derived_from=c(paste(a[1],a[2], sep = ","),paste(a[1],a[2], sep = ","))
   )
   
-}
+}#this currently doesn't handle KU+nonKU relations correctly.
 
 ##The first instances of u,v,w, & x below should only be run once.
 #This generates the mutually entailed relations from the trained set and translates the strings into data tables.
