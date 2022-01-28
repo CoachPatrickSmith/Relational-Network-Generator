@@ -7,7 +7,9 @@ a <- c("A<B", "B>C")
 b <- c("A<B", "B>C", "C<D", "E>D", "F>E", "F<G")
 c <- c("A<B")
 d <- c("A<B", "B<C", "C<D", "D<E", "E<F", "F<G")
+e <- c("A<B", "B<C")
 t<- c("gkuj", "h<i", "i<k", "k<j", "l<o", "mkuk", "n=o", "p>o")
+u<-c("A<B", "B>C", "C<D", "E>D", "F>E", "F<G","g=j", "h<i", "i<k", "k<j", "l<o", "m=k", "n=o", "p>o", "D=m","i=o")
 #The a,b,c, and t variables above are examples of lists of relational statements.
 #You can provide as many statements as you like in the form of Single_letter_Relation(=,<,>, or ku)_Single_letter (e.g. A>B)
 #Once your list is saved to a variable name, running the v0.1 code at the bottom's relationTrain(variablename) 
@@ -125,7 +127,7 @@ relTrain<- function(a){
   return(x)
 } #This now does all of the below in v0.2 automatically.
 
-x<-relTrain(a) #use the variable name "x" to pass to the visualizer without issue
+x<-relTrain(u) #use the variable name "x" to pass to the visualizer without issue
 
 # ############ All of the below until the V0.1 code is just the detailed commenting of the relTrain function internals above.############
 # ##The first instances of u,v,w, & x below should only be run once.
