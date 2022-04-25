@@ -3,7 +3,14 @@ library(igraph)
 library(dplyr)
 library(intergraph)
 
-#This does the same for the v0.2 script, no mutate required since the newer script does the parsing already
+#The below script assumes you have assigned the output of the relationTrain() function in "relational permutations.R" 
+# to the variable "x" already. Once that is done, simply running the unmodified script below should produce the basic 
+# graph network visualization with stimuli as vertex and relationships as edges color coded as trained (Blue), mutually entailed (Purple),
+# and combinatorially entailed (Orange). Edge colors may be modified by changing the color names in line in "relational permutations.R"
+
+
+#The commented out lines just below allow you to filter "ku" or "non-ku" relations from the input table prior to generating
+#the graph visualization. See line specific comments for more details.
 x%>%
   #filter(!Relation_Type=="ku")%>% #use this to supress "ku" relations. Comment this line to show "ku" relations
   #filter(Relation_Type=="ku")%>%#use this to supress all but "ku" relations. Comment this line to show "ku" relations
@@ -11,8 +18,8 @@ x%>%
   filter(!duplicated(Relation))->
   edgeList
 
-#This coerces the data frame output above, in the form of an edge list, into network data type.
-# 
+#This coerces the data frame output above, in the form of an edge list, 
+# into a network data type for use with graph visualization packages.
 
 relTnet<- network(edgeList,
                   matrix.type='edgelist',
@@ -30,8 +37,16 @@ relTnet<- network(edgeList,
                   ##    Multiple relations between vertex is reasonable given the pairs of relations used to combine.
                   multiple = TRUE)
 
+#This line below coerces the generic network data type into an Igraph object for plotting
+# If you are familiar with other graph packages, you
 rel_graph<- asIgraph(relTnet)
 
+
+#This line generates the actual plot of the graph network. 
+# Some versions of Igraph may not show the vertex or edge labels in the plot window.
+#  See https://github.com/igraph/python-igraph/issues/185 for details.
+#  If this is the case for you, try exporting as an .SVG file and open that to check
+#   for the labels plotting successfully.
 plot(rel_graph,
      vertex.size=12,
      vertex.label=V(rel_graph)$vertex.names,
@@ -52,47 +67,3 @@ plot(rel_graph,
 # x.table<-tableGrob(x)
 # grid.arrange(x.table)
 ####
-
-
-
-#### Historical code for previous attempts
-# #### This function pulls the end vertex from the string
-# parseTo<-function(a){
-#   if(nchar(a)>3){substr(a,4,4)}
-#   else{substr(a,3,3)
-#   }
-# }
-# 
-# #This function pulls the relation type from the string
-# parseRel<-function(a){
-#   if(nchar(a)>3){substr(a,2,3)}
-#   else{substr(a,2,2)
-#   }
-# }
-# 
-# #This function outputs a color string for the edge based on the derivation level
-# #This scheme should be red/green colorblind accesssible
-# edgeColor<- function(a){
-#   case_when(
-#     a == "Directly Trained" ~ "Blue",
-#     a == "Mutually Entailed"~ "Brown",
-#     a == "Combinatorially Entailed" ~ "Dark Green"
-#   )
-# }
-# 
-# #This takes the output from the relational permutation.R v0.1 script and 
-# # parses start and end vertexes and relational types, and assigns edge color attributes.
-# # It filters for duplicate instances of edges prior to assigning to a new data frame.
-# # The output is a data frame formatted such that each row is an edge description and
-# # can be coerced into the network data structure.
-# 
-# # relb%>%
-# #   mutate(From = unlist(substr(Relation,1,1)), 
-# #          To=unlist(lapply(Relation, parseTo)),
-# #          Relation_Type = unlist(lapply(Relation, parseRel)),
-# #          .before=Derivation_Level)%>%
-# #   mutate(edge_color = unlist(lapply(Derivation_Level, edgeColor)))%>%
-# #   filter(!Relation_Type=="ku")%>% #use this to supress "ku" relations.  Comment this line to show "ku" relations
-# #   filter(!duplicated(Relation))->
-# #   edgeList
-# #####

@@ -9,21 +9,40 @@ d <- c("A<B", "B<C", "C<D", "D<E", "E<F", "F<G")
 e <- c("A<B", "B<C")
 f <- c("A<B", "B>C", "C=D")
 g<- c("c<a","b<a","e<d","f<d","d<a")
-h<- c("A<B", "B=C")
-i<- c("A=B", "B=C")
+h<- c("A=B", "B=C")
+i<- c("A>B", "B=C")
 t<- c("gkuj", "h<i", "i<k", "k<j", "l<o", "mkuk", "n=o", "p>o")
 u<-c("A<B", "B>C", "C<D", "E>D", "F>E", "F<G","g=j", "h<i", "i<k", "k<j", "l<o", "m=k", "n=o", "p>o", "D=m","i=o")
-#The a,b,c, and t variables above are examples of lists of relational statements.
-#You can provide as many statements as you like in the form of Single_letter_Relation(=,<,>, or ku)_Single_letter (e.g. A>B)
-#Once your list is saved to a variable name, running the v0.1 code at the bottom's relationTrain(variablename) 
-# will output a table of relations and their general derivation group.
-# Running the v0.2 code just below will output an edge list table ready to be imported into a (network) or (iGraph) data structure.
+#The variables above are examples of lists of relational statements.
+#Variables h, i, & t, are the examples 1-3 respectively given in the Smith & Hayes (2022) manuscript introducing this script.
+## to work through the examples from the paper,
+## assign one of the lists to a variable name,
+## load the custom functions below into the environment,
+## and run relationTrain(VariableName) to get output to the console.
+## 
+###  Additional functionality since publication is described in comments in the code here.
+###   Derivation Degree has been added to allow for control of how deeply derivation recurs on previously derived relations.
+###   Child relational Derivation Degree values are inherited from the parent relations used in their derivation and increment up using the following methods:
+###    Trained Relations: DD =0
+###    Mutually Entailed Relations: DD= ParentDD+1
+###    Combinatorially Entailed Relations: DD = max((MaxParentDD +1) OR 2)
+###   The default parent DD values for the Mutual and Combinatorial Entailment functions are both 0.
+###   The default max derivation degree value in RelationTrain() is 2.
+###    This value can be changed if the user wants to restrict the output or explore topological differences associated with constrained or extended derivation.
+#
+#If you would like to input your own relational list,
+## you can provide as many statements as you like in the form of Single_letter_Relation(=,<,>, or ku)_Single_letter (e.g. A>B)
+## Once your list is saved to a variable name, running the v0.1 code at the bottom's relationTrain(variablename) 
+## will output a table of relations and their general derivation group.
+# Running the v1.0 code just below will output an edge list table ready to be imported into a (network) or (iGraph) data structure.
 #   Running the Network Graph visualizer.R script will produce a visual graph plot of the trained and derived network.
 
 ## Version 1.0
 #relationParse input 1 value (relStatement)
 ##  and output 8 values in 1 row
 ##      (From(Stim1), Relation, To(Stim2), Relation, Relation Type, Edge Color, Derivation Level, Derivation Degree, Derived From{defaul none})
+# This function handles converting the character string input of a single relational statement into a list of elements 
+# and appends additional metadata for user readability, graph network visualizing, and diagnostics.
 
 relationParse <- function(relStatement){
   a<- as.character(relStatement)
@@ -50,6 +69,8 @@ relationParse <- function(relStatement){
 #mutualEntail input 4 values (From(Stim 1), Relation, To(Stim2), Derivation Degree{default = 0}) 
 ##   and output 8 values 1 rows
 ##      (From(Stim2), Entailed Relation, To(Stim1), Entailed Relation, Relation Type, Edge Color, Derivation Level, Derivation Degree, Derived From)
+# This function handles deriving mutually entailed relations from a single input relation.
+
 mutualEntail <- function(from, relation, to, derivationDegree=0){
   r<- case_when(
     as.character(relation) == "="~relation,
@@ -74,6 +95,7 @@ mutualEntail <- function(from, relation, to, derivationDegree=0){
 ##  and output 8 values 2 rows
 ##      (From(StimA), Relation, To(StimB), Relation, Relation Type, Edge Color, Derivation Level, Derivation Degree, Derived From)
 ##      Mutual Entail Output: (From(StimB), Entailed Relation, To(StimA), Entailed Relation, Relation Type, Edge Color, Derivation Level, Derivation Degree, Derived From)
+# This function handles deriving combinatorially entailed relations from two input relations.
 combinatorialEntail <- function(From1, Relation1, To1, derivationDegree1=0, From2, Relation2, To2, derivationDegree2=0){
   #filter out identity relations, Fail if either is identity
   #filter out pairs that do not intersect, Fail if no shared stimuli
@@ -166,6 +188,8 @@ combinatorialEntail <- function(From1, Relation1, To1, derivationDegree1=0, From
 
 #relationTrain input 3 values (list(relStatements) | Relational data frame, maxDerivationDegree{default = 2 (i.e, first combinatorial mutual entailment)})
 ##  and output dataframe of all derivable relational statements up to selected max derivation degree
+# This function brings all of the above functions together under one master function and handles efficiently permuting possible stimulus pairs to the derivation degree specified.
+
 relationTrain <- function(relationList, maxDerivationDegree = 2){
   #detect if relation list is a table or character string list
   #IF string list, split string and feed through relParse
@@ -226,10 +250,7 @@ relationTrain <- function(relationList, maxDerivationDegree = 2){
     )
     #Filter for duplicate combinatorial stimulus sets
     tRl<- tRl[!duplicated(tRl$stimSet),]
-    #create a list of combinatorial pair row numbers that share one stimuli (3 unique stimulus in the stim set)
-    #tmpX<- lapply((lapply(str_split(tRl$stimSet,  pattern = ""), unique)), length)
-    #use the above list to filter the rows of TRl
-    #tRl<- tRl[which(sapply(tmpX, FUN=function(X) 3 %in% X)),] #This and the above line are breaking the combinatorial entail block below
+   
     #Feed tRl to combinatorial entail function and row bind output to rL table
     tRl<- combinatorialEntail(
       From1 = tRl$From,
@@ -284,13 +305,8 @@ relationTrain <- function(relationList, maxDerivationDegree = 2){
     )
     #Filter for duplicate combinatorial stimulus sets
     tRl<- tRl[!duplicated(tRl$stimSet),]
-    #create a list of combinatorial pair row numbers that share one stimuli (3 unique stimulus in the stim set)
-    #tmpX<- lapply((lapply(str_split(tRl$stimSet,  pattern = ""), unique)), length)
-    #use the above list to filter the rows of TRl
-    #tRl<- tRl[which(sapply(tmpX, FUN=function(X) 3 %in% X)),] #This and the above line are breaking the combinatorial entail block below
+    
     #Feed tRl to combinatorial entail function and row bind output to rL table
-    
-    
     tRl<- bind_rows(mapply(combinatorialEntail,
                            From1 = tRl$From,
                            From2=tRl$From2,
@@ -318,13 +334,8 @@ relationTrain <- function(relationList, maxDerivationDegree = 2){
     i<- if_else(post.loop>0, pre.loop-post.loop, post.loop)
   }
   rL<- filter(rL, rL$DerivationDegree<=maxDerivationDegree)
-  return(rL)
-  
-  #Select relational pairs that will combine to fill in blanks
-  #Feed this list to combEntail
-  #Update permutation list
-  #Repeat select and combEnt until permutation list is complete
   #Return completed datatable
+  return(rL)
 }
 
 
