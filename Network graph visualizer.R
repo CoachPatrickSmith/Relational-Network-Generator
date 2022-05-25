@@ -12,9 +12,9 @@ library(intergraph)
 #The commented out lines just below allow you to filter "ku" or "non-ku" relations from the input table prior to generating
 #the graph visualization. See line specific comments for more details.
 x%>%
-  #filter(!Relation_Type=="ku")%>% #use this to supress "ku" relations. Comment this line to show "ku" relations
-  #filter(Relation_Type=="ku")%>%#use this to supress all but "ku" relations. Comment this line to show "ku" relations
-  #filter(!substr(Derivation_Level,1,4)=="Comb")%>% #use this to supress combinatorially derived relations. Comment this line to show combinatorially derived relations
+  #filter(!RelationType=="ku")%>% #use this to supress "ku" relations. Comment this line to show "ku" relations
+  #filter(RelationType=="ku")%>%#use this to supress all but "ku" relations. Comment this line to show "ku" relations
+  #filter(!substr(DerivationLevel,1,4)=="Comb")%>% #use this to supress combinatorially derived relations. Comment this line to show combinatorially derived relations
   filter(!duplicated(Relation))->
   edgeList
 
@@ -48,16 +48,16 @@ rel_graph<- asIgraph(relTnet)
 #  If this is the case for you, try exporting as an .SVG file and open that to check
 #   for the labels plotting successfully.
 plot(rel_graph,
-     vertex.size=12,
+     #vertex.size=12,
      vertex.label=V(rel_graph)$vertex.names,
      vertex.label.color = "white",
-     vertex.label.size = 20,
+     #vertex.label.size = 20,
      vertex.color = "black",
      edge.label=E(rel_graph)$Relation,
-     edge.color=E(rel_graph)$EdgeColor,
+     edge.color=E(rel_graph)$EdgeColor#,
      #edge.arrow.size=1,
-     edge.weight=(1+E(rel_graph)$DerivationDegree)^-1,
-     edge.width = ((1+E(rel_graph)$DerivationDegree)^-1)*5
+     #edge.weight=(1+E(rel_graph)$DerivationDegree)^-1,
+     #edge.width = ((1+E(rel_graph)$DerivationDegree)^-1)*5
 )
 
 #### For making a plot image of the table
