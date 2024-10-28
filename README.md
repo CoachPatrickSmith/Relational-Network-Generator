@@ -7,3 +7,5 @@ An open access article including theoretical discussion and getting started tuto
 
 If you use this script or its derivatives, please cite:
 Smith, P., & Hayes, S. C. (2022). An Open-Source Relational Network Derivation Script in R for Modeling and Visualizing Complex Behavior for Scientists and Practitioners. Frontiers in Psychology, 13. https://www.frontiersin.org/article/10.3389/fpsyg.2022.914485
+
+Please see the wiki and announcements for the most recent updates.
